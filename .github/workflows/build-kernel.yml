@@ -26,11 +26,11 @@ jobs:
     - name: Download Neutron Toolchain
       run: bash hani-ci.sh --tools
 
-    - name: Build hanikrnl-beehive
+    - name: Build hanikrnl-neon
       run: bash hani-ci.sh --build
 
     - name: Upload kernel
       uses: actions/upload-artifact@v3
       with:
-        name: hanikrnl-beehive
-        path: 4.19-hanikrnl.*-beehive-chime*.zip
+        name: hanikrnl-neon
+        path: 4.19-hanikrnl.*-neon-chime*.zip
