@@ -999,7 +999,7 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 		lruvec = mem_cgroup_page_lruvec(page, zone->zone_pgdat);
 
 		/* Try isolate the page */
-		if (__isolate_lru_page(page, isolate_mode) != 0)
+		if (__isolate_lru_page_prepare(page, isolate_mode) != 0)
 			goto isolate_fail;
 		
 		VM_BUG_ON_PAGE(PageCompound(page), page);
