@@ -969,21 +969,6 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 		if (!(cc->gfp_mask & __GFP_FS) && page_mapping(page))
 			goto isolate_fail;
 
-		/*
-		 * Be careful not to clear PageLRU until after we're
-		 * sure the page is not being freed elsewhere -- the
-		 * page release code relies on it.
-		 */
-		if (unlikely(!get_page_unless_zero(page)))
-			goto isolate_fail;
-
-		if (__isolate_lru_page_prepare(page, isolate_mode) != 0)
-			goto isolate_fail_put;
-
-		/* Try isolate the page */
-		if (!TestClearPageLRU(page))
-			goto isolate_fail_put;
-
 		/* If we already hold the lock, we can skip some rechecking */
 		if (!locked) {
 			locked = compact_lock_irqsave(zone_lru_lock(zone),
@@ -995,6 +980,10 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 				if (test_and_set_skip(cc, page, low_pfn))
 					goto isolate_abort;
 			}
+			
+			/* Recheck PageLRU and PageCompound under lock */
+			if (!PageLRU(page))
+				goto isolate_fail;
 
 			/*
 			 * Page become compound since the non-locked check,
@@ -1003,13 +992,16 @@ isolate_migratepages_block(struct compact_control *cc, unsigned long low_pfn,
 			 */
 			if (unlikely(PageCompound(page))) {
 				low_pfn += (1UL << compound_order(page)) - 1;
-				SetPageLRU(page);
 				goto isolate_fail_put;
 			}
 		}
 
 		lruvec = mem_cgroup_page_lruvec(page, zone->zone_pgdat);
 
+		/* Try isolate the page */
+		if (__isolate_lru_page(page, isolate_mode) != 0)
+			goto isolate_fail;
+		
 		VM_BUG_ON_PAGE(PageCompound(page), page);
 
 		/* Successfully isolated */
