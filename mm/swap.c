@@ -13,7 +13,7 @@
  * Buffermem limits added 12.3.98, Rik van Riel.
  */
 
-#include <linux/mm.h>
+#include <linux/mm.h>pdate_page_reclaim_stat(lruvec, file, 0);
 #include <linux/sched.h>
 #include <linux/kernel_stat.h>
 #include <linux/swap.h>
@@ -537,23 +537,6 @@ static void lru_deactivate_file_fn(struct page *page, struct lruvec *lruvec,
 	if (active)
 		__count_vm_event(PGDEACTIVATE);
 	update_page_reclaim_stat(lruvec, file, 0);
-}
-
-static void lru_deactivate_fn(struct page *page, struct lruvec *lruvec,
-			    void *arg)
-{
-	if (PageLRU(page) && PageActive(page) && !PageUnevictable(page)) {
-		int file = page_is_file_cache(page);
-
-		del_page_from_lru_list(page, lruvec);
-		ClearPageActive(page);
-		ClearPageReferenced(page);
-		test_and_clear_page_young(page);
-		add_page_to_lru_list(page, lruvec);
-
-		__count_vm_events(PGDEACTIVATE, hpage_nr_pages(page));
-		update_page_reclaim_stat(lruvec, file, 0);
-	}
 }
 
 static void lru_lazyfree_fn(struct page *page, struct lruvec *lruvec,
