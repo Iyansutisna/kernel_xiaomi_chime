@@ -1756,7 +1756,6 @@ static unsigned long isolate_lru_pages(unsigned long nr_to_scan,
 				goto busy;
 
 			ClearPageLRU(page);
-			ret = 0;
 
 			nr_pages = hpage_nr_pages(page);
 			nr_taken += nr_pages;
