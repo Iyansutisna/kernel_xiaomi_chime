@@ -565,7 +565,7 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 		/* Only pin actual display thread to prime cluster */
 		if (!i) {
 			priv->disp_thread[i].thread =
-				kthread_run_perf_critical(cpu_prime_mask,
+				kthread_run_perf_critical(cpu_perf_mask,
 				kthread_worker_fn,
 					&priv->disp_thread[i].worker,
 					"crtc_commit:%d", priv->disp_thread[i].crtc_id);
@@ -597,7 +597,7 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 		/* Only pin first event thread to prime cluster */
 		if (!i) {
 			priv->event_thread[i].thread =
-				kthread_run_perf_critical(cpu_prime_mask,
+				kthread_run_perf_critical(cpu_perf_mask,
 				kthread_worker_fn,
 					&priv->event_thread[i].worker,
 					"crtc_event:%d", priv->event_thread[i].crtc_id);
